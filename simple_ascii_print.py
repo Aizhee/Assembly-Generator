@@ -1,3 +1,7 @@
+# A simple script to generate assembly code to print ASCII characters from a text file
+# The generated assembly code is compatible with emu8086
+# ================================================================
+
 # Read input from a text file and generate assembly code
 
 def generate_assembly(input_file, output_file):
