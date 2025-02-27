@@ -17,24 +17,24 @@ def generate_assembly(input_file, output_file):
         file.write("start:\n\n")
         
         for char in data:
-            file.write("    mov ah,02h\n")
+            file.write("mov ah,02h\n")
             if char == '\n':
-                file.write("    mov dl,0dh ;CR\n")
-                file.write("    int 21h\n")
-                file.write("    mov dl,0ah ;LF\n")
-                file.write("    int 21h\n")
+                file.write("mov dl,0dh ;CR\n")
+                file.write("int 21h\n")
+                file.write("mov dl,0ah ;LF\n")
+                file.write("int 21h\n")
             elif char == '\t':
-                file.write("    mov dl,09h ;tab\n")
-                file.write("    int 21h\n")
+                file.write("mov dl,09h ;tab\n")
+                file.write("int 21h\n")
             elif char == ' ':
-                file.write("    mov dl,20h ;space\n")
-                file.write("    int 21h\n")
+                file.write("mov dl,20h ;space\n")
+                file.write("int 21h\n")
             else:
-                file.write(f"    mov dl,{hex(ord(char))}h ;{char}\n")
-                file.write("    int 21h\n")
+                file.write(f"mov dl,{hex(ord(char))}h ;{char}\n")
+                file.write("int 21h\n")
         
-        file.write("\n    mov ah,4Ch\n")
-        file.write("    int 21h\n")
+        file.write("\nmov ah,4Ch\n")
+        file.write("int 21h\n")
 
 def fix_output(output_file):
     with open(output_file, 'r') as file:
