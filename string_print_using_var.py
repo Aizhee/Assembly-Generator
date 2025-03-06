@@ -5,7 +5,7 @@
 # Read input from a text file and generate assembly code
 
 def generate_assembly(input_file, output_file):
-    with open(input_file, 'r') as file:
+    with open(input_file, 'r', encoding='utf-8') as file:
         lines = file.readlines()
     
     with open(output_file, 'w') as file:
@@ -32,4 +32,4 @@ def generate_assembly(input_file, output_file):
 
 
 # Example usage
-generate_assembly('input.txt', 'output.asm')
+generate_assembly('inputs.txt', 'output1.asm')
