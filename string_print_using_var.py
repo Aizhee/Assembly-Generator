@@ -32,4 +32,4 @@ def generate_assembly(input_file, output_file):
 
 
 # Example usage
-generate_assembly('inputs.txt', 'output1.asm')
+generate_assembly('input.txt', 'output.asm')
