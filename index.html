@@ -3,36 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assembly Code Generator</title>
+    <title>Networking Automation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #0c7823;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        nav {
+            margin: 2rem auto;
+            text-align: center;
+        }
+        nav a {
+            text-decoration: none;
+            color: #0c7823;
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #0c7823;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        nav a:hover {
+            background-color: #0c7823;
+            color: white;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem 0;
+            background-color: #f4f4f9;
+            color: #666;
+        }
+
+        /* Media Query for Mobile Devices */
+        @media (max-width: 900px) {
+            nav a {
+                display: block;
+                margin: 1rem auto;
+                font-size: 1rem;
+                width: 80%;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+            header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Enter Text to Convert to Assembly Code</h2>
-    <textarea id="inputText" rows="10" cols="50"></textarea><br>
-    <button onclick="generateAssembly()">Generate Assembly</button>
-    <h3>Generated Assembly Code:</h3>
-    <pre id="output"></pre>
-    
-    <script>
-        function generateAssembly() {
-            let input = document.getElementById("inputText").value;
-            let lines = input.split("\n");
-            let assemblyCode = ".model small\n.data\n\n";
-            
-            lines.forEach((line, i) => {
-                assemblyCode += `var${i} db '${line}', 13, 10, '$'\n`;
-            });
-            
-            assemblyCode += "\n.code\nstart:\n";
-            assemblyCode += "mov ax, @data\nmov ds, ax\nmov ah, 09h\n\n";
-            
-            lines.forEach((_, i) => {
-                assemblyCode += `mov dx, offset var${i}\nint 21h\n`;
-            });
-            
-            assemblyCode += "\nmov ah, 4Ch\nint 21h\nend start\n";
-            
-            document.getElementById("output").textContent = assemblyCode;
-        }
-    </script>
+    <header>
+        <h1>Assembly Generators</h1>
+        <p>Tools and Generators for 8086 Assembly</p>
+    </header>
+    <nav>
+        <a href="simple_string_print.html">Simple String Print</a>
+        <a href="int10h.html">Pixel Art Print</a>
+        <!-- Future links for other generators can be added here -->
+    </nav>
+    <footer>
+        <p>&copy; 2025 Aizhee - Assembly Generator. All rights reserved.</p>
+    </footer>
 </body>
 </html>

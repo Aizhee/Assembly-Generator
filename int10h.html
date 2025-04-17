@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Draw & Generate int 10h Rect Fill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles/int10h.css">
+  <meta name="keywords" content="8086, assembly, pixel art, int 10h, graphics, editor">
+  <meta name="description" content="Create pixel art and generate assembly code for the 8086 architecture. Draw pixels, lines, and rectangles, and add text variables.">
+  <meta name="author" content="Aizhee">
+</head>
+<body>
+  <h1>8086 Pixel art editor</h1>
+  <p>Use this tool to create pixel art and generate assembly code for the 8086 architecture. You can draw pixels, lines, and rectangles, and add text variables.</p>
+  
+  <div class="text-vars">
+    <h3>Text Variables:</h3>
+    <div class="text-input">
+      <input type="text" id="varName" placeholder="Variable name">
+      <input type="text" id="varText" placeholder="Text content">
+      <input type="number" id="varRow" placeholder="Row" min="0" max="24">
+      <input type="number" id="varCol" placeholder="Col" min="0" max="79">
+      <button id="addTextBtn">➕ Add Text</button>
+    </div>
+    <div id="textList"></div>
+  </div>
+  <h3>Canvas Properties</h3>
+  <div class="tools text-input" >
+    <label>Cols: <input type="number" id="pixelWidth" value="40" min="1" max="100"></label>
+    <label>Rows: <input type="number" id="pixelHeight" value="25" min="1" max="100"></label>
+      <div class="clearCanv">
+    <button id="clearBtn"> Clear Canvas</button>
+    </div>
+  </div>
+
+  <h3>Color Picker</h3>
+  <div class="color-picker" id="colorPicker"></div>
+
+  <h3>Canvas</h3>
+
+  <canvas id="previewCanvas" width="320" height="200"></canvas><br>
+  
+  <button id="generateBtn">⚙️ Generate Assembly</button>
+
+  <h3>Generated Assembly: <button id="copyBtn">📋 Copy to Clipboard</button></h3>
+  <pre id="output"></pre>
+  
+
+  <script src ="scripts/int10h.js"></script>
+  <footer>
+    <p>&copy; 2025 Aizhee - Assembly Generator. All rights reserved.</p>
+</footer>
+</body>
+</html>

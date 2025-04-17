@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Code Generator</title>
+</head>
+<body>
+    <h2>Enter Text to Convert to Assembly Code</h2>
+    <textarea id="inputText" rows="10" cols="50"></textarea><br>
+    <button onclick="generateAssembly()">Generate Assembly</button>
+    <h3>Generated Assembly Code:</h3>
+    <pre id="output"></pre>
+    
+    <script>
+        function generateAssembly() {
+            let input = document.getElementById("inputText").value;
+            let lines = input.split("\n");
+            let assemblyCode = ".model small\n.data\n\n";
+            
+            lines.forEach((line, i) => {
+                assemblyCode += `var${i} db '${line}', 13, 10, '$'\n`;
+            });
+            
+            assemblyCode += "\n.code\nstart:\n";
+            assemblyCode += "mov ax, @data\nmov ds, ax\nmov ah, 09h\n\n";
+            
+            lines.forEach((_, i) => {
+                assemblyCode += `mov dx, offset var${i}\nint 21h\n`;
+            });
+            
+            assemblyCode += "\nmov ah, 4Ch\nint 21h\nend start\n";
+            
+            document.getElementById("output").textContent = assemblyCode;
+        }
+    </script>
+</body>
+</html>
