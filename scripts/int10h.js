@@ -201,7 +201,7 @@ function updateTextList() {
   list.innerHTML = textVariables
     .map(
       (v, i) => `
-    <div>
+    <div class="text-input">
     <input type="text" value="${v.name}" onchange="updateVariable(${i}, 'name', this.value)" placeholder="Variable name">
     <input type="text" value="${v.text}" onchange="updateVariable(${i}, 'text', this.value)" placeholder="Text content">
     <input type="number" value="${v.row}" onchange="updateVariable(${i}, 'row', parseInt(this.value))" placeholder="Row" min="0" max="24">
