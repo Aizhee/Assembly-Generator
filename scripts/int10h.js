@@ -246,7 +246,7 @@ document.getElementById("generateBtn").addEventListener("click", () => {
     asm += `    ${v.name} DB '${v.text.replace(/'/g, "''")}',13,10,'$'\n`;
   });
 
-  asm += `.code\nstart:\n\n`;
+  asm += `.code\nstart:\nint 10h\n\n`;
 
   // Generate rectangles
   for (let color = 0; color < 16; color++) {
