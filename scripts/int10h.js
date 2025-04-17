@@ -284,6 +284,8 @@ document.getElementById("generateBtn").addEventListener("click", () => {
           let hex = shiftedColor.toString(16).padStart(2, "0").toUpperCase();
           if (/^[A-F]/.test(hex)) hex = "0" + hex;
           const bhValue = color === 0 ? "07" : hex; // Set bh to 07 if the background is black
+          //   comment
+          asm += `; Draw rectangle at (${x}, ${y}) with color ${hex}\n`;
           asm += `mov ah, 07h\nmov bh, ${bhValue}h\nmov ch, ${y}\nmov cl, ${x}\nmov dh, ${
             y + fullHeight - 1
           }\nmov dl, ${x + width - 1}\nint 10h\n\n`;
