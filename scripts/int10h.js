@@ -249,7 +249,7 @@ document.getElementById("generateBtn").addEventListener("click", () => {
   asm += `.code\nstart:\n\nint 10h\n\n`;
 
   // Generate rectangles
-  for (let color = 0; color < 16; color++) {
+  for (let color = 1; color < 16; color++) { // Skip black (color 0)
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         if (grid[y][x] === color && !drawn[y][x]) {
@@ -284,7 +284,6 @@ document.getElementById("generateBtn").addEventListener("click", () => {
           let hex = shiftedColor.toString(16).padStart(2, "0").toUpperCase();
           if (/^[A-F]/.test(hex)) hex = "0" + hex;
           const bhValue = color === 0 ? "07" : hex; // Set bh to 07 if the background is black
-          //   comment
           asm += `; Draw rectangle at (${x}, ${y}) with color ${hex}\n`;
           asm += `mov ah, 07h\nmov bh, ${bhValue}h\nmov ch, ${y}\nmov cl, ${x}\nmov dh, ${
             y + fullHeight - 1
@@ -295,8 +294,6 @@ document.getElementById("generateBtn").addEventListener("click", () => {
   }
 
   // add to datasegment
-  // mov ax,@data
-  // mov ds,ax
   asm += `mov ax, @data\nmov ds, ax\n\n`;
 
   // Add text display code
