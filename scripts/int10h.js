@@ -149,6 +149,45 @@ function stopDrawing() {
   isDrawing = false;
 }
 
+// Undo/Redo functionality
+let undoStack = [];
+let redoStack = [];
+
+function saveState() {
+  undoStack.push(JSON.parse(JSON.stringify(grid)));
+  redoStack = []; // Clear redo stack on new action
+}
+
+function undo() {
+  if (undoStack.length > 0) {
+    redoStack.push(JSON.parse(JSON.stringify(grid)));
+    grid = undoStack.pop();
+    drawGrid();
+  }
+}
+
+function redo() {
+  if (redoStack.length > 0) {
+    undoStack.push(JSON.parse(JSON.stringify(grid)));
+    grid = redoStack.pop();
+    drawGrid();
+  }
+}
+
+// Save state on drawing start
+canvas.addEventListener("mousedown", () => saveState());
+
+// Keyboard shortcuts for undo/redo
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.key === "z") {
+    e.preventDefault();
+    undo();
+  } else if (e.ctrlKey && e.key === "y") {
+    e.preventDefault();
+    redo();
+  }
+});
+
 // Clear canvas
 document.getElementById("clearBtn").addEventListener("click", () => {
   if (confirm("Are you sure you want to clear the canvas? This action cannot be undone.")) {
