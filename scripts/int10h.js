@@ -75,6 +75,7 @@ function initCanvas() {
     .fill()
     .map(() => Array(cols).fill(0));
   drawGrid();
+  saveState()
 }
 
 function drawGrid() {
@@ -117,6 +118,8 @@ canvas.addEventListener("mousemove", draw);
 canvas.addEventListener("mouseup", stopDrawing);
 canvas.addEventListener("mouseleave", stopDrawing);
 
+let lastDrawn = { x: -1, y: -1 };
+
 function getCanvasPosition(e) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
@@ -128,7 +131,16 @@ function getCanvasPosition(e) {
 }
 
 function startDrawing(e) {
+  const pos = getCanvasPosition(e);
+  const cellWidth = canvas.width / cols;
+  const cellHeight = canvas.height / rows;
+  const x = Math.floor(pos.x / cellWidth);
+  const y = Math.floor(pos.y / cellHeight);
+  if (x >= 0 && x < cols && y >= 0 && y < rows) {
+    saveState(); // Save before drawing starts
+  }
   isDrawing = true;
+  lastDrawn = { x: -1, y: -1 }; // Reset tracking
   draw(e);
 }
 
@@ -139,14 +151,20 @@ function draw(e) {
   const cellHeight = canvas.height / rows;
   const x = Math.floor(pos.x / cellWidth);
   const y = Math.floor(pos.y / cellHeight);
+
+  // Avoid re-drawing the same cell repeatedly
+  if (x === lastDrawn.x && y === lastDrawn.y) return;
+
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
     grid[y][x] = currentColor;
+    lastDrawn = { x, y };
     drawGrid();
   }
 }
 
 function stopDrawing() {
   isDrawing = false;
+  lastDrawn = { x: -1, y: -1 };
 }
 
 // Undo/Redo functionality
@@ -174,9 +192,6 @@ function redo() {
   }
 }
 
-// Save state on drawing start
-canvas.addEventListener("mousedown", () => saveState());
-
 // Keyboard shortcuts for undo/redo
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "z") {
@@ -187,6 +202,7 @@ document.addEventListener("keydown", (e) => {
     redo();
   }
 });
+
 
 // Clear canvas
 document.getElementById("clearBtn").addEventListener("click", () => {
