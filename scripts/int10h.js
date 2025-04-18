@@ -275,8 +275,8 @@ function updateTextList() {
     <div class="text-input">
     <input type="text" value="${v.name}" onchange="updateVariable(${i}, 'name', this.value)" placeholder="Variable name">
     <input type="text" value="${v.text}" onchange="updateVariable(${i}, 'text', this.value)" placeholder="Text content">
-    <input type="number" value="${v.row}" onchange="updateVariable(${i}, 'row', parseInt(this.value))" placeholder="Row" min="0" max="24">
-    <input type="number" value="${v.col}" onchange="updateVariable(${i}, 'col', parseInt(this.value))" placeholder="Col" min="0" max="79">
+    <input type="number" value="${v.row}" onchange="updateVariable(${i}, 'row', parseInt(this.value))" placeholder="Row" min="0" max="100">
+    <input type="number" value="${v.col}" onchange="updateVariable(${i}, 'col', parseInt(this.value))" placeholder="Col" min="0" max="100">
     <button onclick="if(confirm('Are you sure you want to delete this variable?')) { textVariables.splice(${i},1); updateTextList(); drawGrid(); }">❌</button>
     </div>
     `
