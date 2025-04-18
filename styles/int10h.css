@@ -87,6 +87,9 @@ button:active {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* spacing of children */
+    gap: 10px;
+
 }
 
 /* ========== Text Inputs & Vars ========== */

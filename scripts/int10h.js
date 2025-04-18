@@ -150,11 +150,27 @@ function stopDrawing() {
 }
 
 // Clear canvas
-document.getElementById("clearBtn").addEventListener("click", initCanvas);
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (confirm("Are you sure you want to clear the canvas? This action cannot be undone.")) {
+    initCanvas();
+  }
+});
 
 // Handle dimension changes
-document.getElementById("pixelWidth").addEventListener("change", initCanvas);
-document.getElementById("pixelHeight").addEventListener("change", initCanvas);
+let dimensionChangeWarned = false;
+
+["pixelWidth", "pixelHeight"].forEach((id) => {
+  document.getElementById(id).addEventListener("change", () => {
+    if (!dimensionChangeWarned) {
+      if (confirm("Changing dimensions will clear the canvas. Are you sure?")) {
+        initCanvas();
+      }
+      dimensionChangeWarned = true;
+    } else {
+      initCanvas();
+    }
+  });
+});
 
 // Add text variables
 document.getElementById("addTextBtn").addEventListener("click", () => {
@@ -206,7 +222,7 @@ function updateTextList() {
     <input type="text" value="${v.text}" onchange="updateVariable(${i}, 'text', this.value)" placeholder="Text content">
     <input type="number" value="${v.row}" onchange="updateVariable(${i}, 'row', parseInt(this.value))" placeholder="Row" min="0" max="24">
     <input type="number" value="${v.col}" onchange="updateVariable(${i}, 'col', parseInt(this.value))" placeholder="Col" min="0" max="79">
-    <button onclick="textVariables.splice(${i},1); updateTextList(); drawGrid()">❌</button>
+    <button onclick="if(confirm('Are you sure you want to delete this variable?')) { textVariables.splice(${i},1); updateTextList(); drawGrid(); }">❌</button>
     </div>
     `
     )
@@ -253,8 +269,7 @@ document.getElementById("generateBtn").addEventListener("click", () => {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         if (grid[y][x] === color && !drawn[y][x]) {
-          let width = 1,
-            height = 1;
+          let width = 1;
           while (
             x + width < cols &&
             grid[y][x + width] === color &&
@@ -323,6 +338,64 @@ copyBtn.addEventListener("click", () => {
     setTimeout(() => (copyBtn.textContent = "📋 Copy to Clipboard"), 1500);
   });
 });
+
+// Warn user if they reload content, changes will not be saved
+window.addEventListener("beforeunload", (e) => {
+  e.preventDefault();
+  confirm("Are you sure you want to leave? Changes will not be saved.");
+});
+
+// Save canvas and text variables to JSON
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const data = {
+    grid,
+    textVariables,
+    cols,
+    rows,
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "canvas_data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// Trigger file input when load button is clicked
+document.getElementById("loadBtn").addEventListener("click", () => {
+  document.getElementById("fileInput").click();
+});
+
+// Handle file selection and load JSON
+document.getElementById("fileInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if (data.grid && data.textVariables && data.cols && data.rows) {
+        grid = data.grid;
+        textVariables = data.textVariables;
+        cols = data.cols;
+        rows = data.rows;
+        canvas.width = cols * 10;
+        canvas.height = rows * 10;
+        drawGrid();
+        updateTextList();
+      } else {
+        alert("Invalid file format.");
+      }
+    } catch (error) {
+      alert("Error loading file: " + error.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
 
 // Initialize canvas
 initCanvas();
