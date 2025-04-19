@@ -24,7 +24,7 @@
   <h1>Image to Canvas Converter</h1>
   <p>Upload an image to convert it into a grid of VGA colors, which you can import to <a href="int10h.html">this generator</a>.</p>
 
-  <div class="tools text-input" >
+  <div class="tools file-input" >
   <input type="file" id="imageInput" accept="image/*"><br><br>
     <div class="tools">
     <label>Cols (Width): <input type="number" id="cols" value="80" min="1" max="100"></label><br>
@@ -35,7 +35,7 @@
 
   <div class="tools">
     <button id="exportBtn">📤 Export Canvas</button>
-  </div>
+  </div><br>
 
   <script>
     const output = document.getElementById('output');

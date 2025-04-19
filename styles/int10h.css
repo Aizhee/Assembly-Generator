@@ -4,8 +4,9 @@
 }
 
 body {
-    margin: 10px;
+    margin: 15px;
     padding: 0;
+    max-width: 900px;
     font-family: 'Terminal', monospace;
     background-color: #fff;
     color: #333;
@@ -117,6 +118,24 @@ button:active {
     font-family: 'Terminal', monospace;
     text-align: center;
     transition: border-color 0.3s, box-shadow 0.2s;
+}
+
+.file-input input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    height: 45px;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: 'Terminal', monospace;
+    text-align: center;
+    transition: border-color 0.3s, box-shadow 0.2s;
+}
+
+.file-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 /* ========== Tools & Color Picker ========== */
