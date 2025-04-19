@@ -389,15 +389,28 @@ document.getElementById("generateBtn").addEventListener("click", () => {
 
     // Add text display code
     textVariables.forEach((v) => {
-      asm += `
-; Set cursor position for ${v.name}
+//       asm += `
+// ; Set cursor position for ${v.name}
+// mov ah, 02h
+// mov bh, 00
+// mov dh, ${v.row}
+// mov dl, ${v.col}
+// int 10h
+  
+// ; Display ${v.name}
+// mov ah, 09h
+// mov dx, offset ${v.name}
+// int 21h\n\n`;
+//     });
+//   }
+
+asm += `
 mov ah, 02h
 mov bh, 00
 mov dh, ${v.row}
 mov dl, ${v.col}
 int 10h
   
-; Display ${v.name}
 mov ah, 09h
 mov dx, offset ${v.name}
 int 21h\n\n`;
