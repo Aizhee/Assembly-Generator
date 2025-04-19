@@ -383,12 +383,13 @@ document.getElementById("generateBtn").addEventListener("click", () => {
     }
   }
 
-  // add to datasegment
-  asm += `mov ax, @data\nmov ds, ax\n\n`;
+  if (textVariables.length > 0) {
+    // add to datasegment
+    asm += `mov ax, @data\nmov ds, ax\n\n`;
 
-  // Add text display code
-  textVariables.forEach((v) => {
-    asm += `
+    // Add text display code
+    textVariables.forEach((v) => {
+      asm += `
 ; Set cursor position for ${v.name}
 mov ah, 02h
 mov bh, 00
@@ -400,7 +401,8 @@ int 10h
 mov ah, 09h
 mov dx, offset ${v.name}
 int 21h\n\n`;
-  });
+    });
+  }
 
   asm += `mov ah, 4Ch\nint 21h\nend start`;
   output.textContent = asm;
