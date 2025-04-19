@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Mode int 10h Fill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="8086, assembly, pixel art, int 10h, graphics, editor">
+  <meta name="description" content="Create pixel art and generate assembly code for the 8086 architecture. Draw pixels, lines, and rectangles, and add text variables.">
+  <meta name="author" content="Aizhee">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0c7823">
+  <link rel="icon" href="https://static.vecteezy.com/system/resources/previews/050/582/502/non_2x/a-pixel-art-icon-of-a-computer-chip-free-vector.jpg" type="image/x-icon">
+  <style>
+    canvas {
+      border: 1px solid #aaa;
+      image-rendering: pixelated;
+      margin-top: 10px;
+    }
+  </style>
+  <!-- incude stlye -->
+  <link rel="stylesheet" href="styles/int10h.css">
+</head>
+<body>
+  <h1>Image to Canvas Converter</h1>
+  <p>Upload an image to convert it into a grid of VGA colors, which you can import to <a href="int10h.html">this generator</a>.</p>
+
+  <div class="tools text-input" >
+  <input type="file" id="imageInput" accept="image/*"><br><br>
+    <div class="tools">
+    <label>Cols (Width): <input type="number" id="cols" value="80" min="1" max="100"></label><br>
+    <label>Rows (Height): <input type="number" id="rows" value="25" min="1" max="100"></label><br><br>
+    </div>
+  </div>
+  <canvas id="previewCanvas"></canvas><br>
+
+  <div class="tools">
+    <button id="exportBtn">📤 Export Canvas</button>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const previewCtx = previewCanvas.getContext('2d');
+    const copyBtn = document.getElementById('copyBtn');
+    let currentImage = null;
+
+    let grid = [];
+    let cols, rows;
+
+    const vgaColorsRGB = [
+      [0x00, 0x00, 0x00],    [0x00, 0x00, 0xaa],
+      [0x00, 0xaa, 0x00],    [0x00, 0xaa, 0xaa],
+      [0xaa, 0x00, 0x00],    [0xaa, 0x00, 0xaa],
+      [0xaa, 0x55, 0x00],    [0xaa, 0xaa, 0xaa],
+      [0x55, 0x55, 0x55],    [0x55, 0x55, 0xff],
+      [0x55, 0xff, 0x55],    [0x55, 0xff, 0xff],
+      [0xff, 0x55, 0x55],    [0xff, 0x55, 0xff],
+      [0xff, 0xff, 0x55],    [0xff, 0xff, 0xff],
+    ];
+
+    function updateCanvasSize() {
+      cols = parseInt(document.getElementById('cols').value) || 80;
+      rows = parseInt(document.getElementById('rows').value) || 25;
+      previewCanvas.width = cols * 8;
+      previewCanvas.height = rows * 16;
+    }
+
+    function processImage() {
+      if (!currentImage) return;
+      updateCanvasSize();
+      
+      cols = parseInt(document.getElementById('cols').value) || 80;
+      rows = parseInt(document.getElementById('rows').value) || 25;
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = cols;
+      tempCanvas.height = rows;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.imageSmoothingEnabled = false;
+      tempCtx.drawImage(currentImage, 0, 0, cols, rows);
+
+      const imageData = tempCtx.getImageData(0, 0, cols, rows).data;
+      grid = [];
+
+      for (let y = 0; y < rows; y++) {
+        const row = [];
+        for (let x = 0; x < cols; x++) {
+          const i = (y * cols + x) * 4;
+          const r = imageData[i];
+          const g = imageData[i + 1];
+          const b = imageData[i + 2];
+          row.push(rgbToAttribute(r, g, b));
+        }
+        grid.push(row);
+      }
+
+      // Draw VGA colors preview
+      previewCtx.imageSmoothingEnabled = false;
+      previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const colorIndex = grid[y][x];
+          const [r, g, b] = vgaColorsRGB[colorIndex];
+          previewCtx.fillStyle = `rgb(${r},${g},${b})`;
+          previewCtx.fillRect(x * 8, y * 16, 8, 16);
+        }
+      }
+    }
+
+    function rgbToAttribute(r, g, b) {
+      let closestColor = 0;
+      let minDistance = Infinity;
+      for (let i = 0; i < vgaColorsRGB.length; i++) {
+        const [vr, vg, vb] = vgaColorsRGB[i];
+        const distance = Math.sqrt((r - vr) ** 2 + (g - vg) ** 2 + (b - vb) ** 2);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestColor = i;
+        }
+      }
+      return closestColor;
+    }
+
+    // Event Listeners
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        processImage();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    document.getElementById('cols').addEventListener('input', processImage);
+    document.getElementById('rows').addEventListener('input', processImage);
+
+    const exportBtn = document.getElementById('exportBtn');
+
+    exportBtn.onclick = () => {
+      if (!grid.length) {
+      alert("⚠️ Please upload an image first.");
+      return;
+      }
+
+      const jsonData = {
+      grid: grid,
+      textVariables: [],
+      cols: cols,
+      rows: rows
+      };
+
+      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "image_canvas.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+  </script>
+
+    <footer>
+      <p>&copy; 2025 Aizhee - Assembly Generator. All rights reserved.</p>
+  </footer>
+</body>
+</html>

@@ -319,8 +319,28 @@ document.getElementById("generateBtn").addEventListener("click", () => {
 
   asm += `.code\nstart:\n\n`;
   
+  // Determine the most frequent color in the grid
+  const colorFrequency = Array(16).fill(0);
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      colorFrequency[grid[y][x]]++;
+    }
+  }
+  const mostFrequentColor = colorFrequency.indexOf(Math.max(...colorFrequency));
+  const shiftedColor = mostFrequentColor << 4;
+  let hex = shiftedColor.toString(16).padStart(2, "0").toUpperCase();
+  if (/^[A-F]/.test(hex)) hex = "0" + hex;
+  const bhValue = mostFrequentColor === 0 ? "07" : hex;
+
+  // Draw the entire screen with the most frequent color
+  asm += `; Draw Background\n`;
+  asm += `mov ah, 07h\nmov bh, ${bhValue}h\nmov ch, 0\nmov cl, 0\nmov dh, ${
+    rows - 1
+  }\nmov dl, ${cols - 1}\nint 10h\n\n`;
+
   // Generate rectangles
-  for (let color = 1; color < 16; color++) { // Skip black (color 0)
+  for (let color = 0; color < 16; color++) {
+    if (color === mostFrequentColor) continue; // Skip the most frequent color
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         if (grid[y][x] === color && !drawn[y][x]) {
