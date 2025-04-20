@@ -474,6 +474,9 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
         rows = data.rows;
         canvas.width = cols * 10;
         canvas.height = rows * 10;
+        // update number fields
+        document.getElementById("pixelWidth").value = cols;
+        document.getElementById("pixelHeight").value = rows;
         drawGrid();
         updateTextList();
       } else {
