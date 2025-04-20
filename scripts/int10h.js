@@ -69,8 +69,8 @@ colorPicker.children[0].classList.add("selected");
 function initCanvas() {
   cols = Math.min(100, parseInt(document.getElementById("pixelWidth").value));
   rows = Math.min(100, parseInt(document.getElementById("pixelHeight").value));
-  canvas.width = cols * 10;
-  canvas.height = rows * 10;
+  canvas.width = cols * 12;
+  canvas.height = rows * 16;
   grid = Array(rows)
     .fill()
     .map(() => Array(cols).fill(0));
@@ -472,8 +472,8 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
         textVariables = data.textVariables;
         cols = data.cols;
         rows = data.rows;
-        canvas.width = cols * 10;
-        canvas.height = rows * 10;
+        canvas.width = cols * 12;
+        canvas.height = rows * 16;
         // update number fields
         document.getElementById("pixelWidth").value = cols;
         document.getElementById("pixelHeight").value = rows;
