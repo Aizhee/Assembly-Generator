@@ -13,10 +13,10 @@
   </style>
 </head>
 <body>
-  <h2>IAS assembler → memory map (opcode addr format)</h2>
+  <h2>IAS assembler → memory map (hex opcode, decimal addr)</h2>
 
   <div class="row">
-    <textarea id="inputCode" placeholder="Paste IAS assembly (address halves like 000(0:19): LOAD M(198)) here"></textarea>
+    <textarea id="inputCode" placeholder="000(0:19): LOAD M(198)&#10;000(20:39): ADD M(199)"></textarea>
   </div>
   <div class="row">
     <button onclick="assemble()">Convert</button>
@@ -24,11 +24,11 @@
     <button onclick="downloadOutput()">Download .map</button>
   </div>
 
-  <h3>Output (ready to load)</h3>
+  <h3>Output</h3>
   <pre id="output"></pre>
   <div class="note">
-    Output format is: <code>ADDR   OPCODE ADDR   OPCODE ADDR</code>.  
-    Example: <code>000   01 100   05 101</code>.
+    Output format: <code>ADDR   OPCODE ADDR   OPCODE ADDR</code><br>
+    Example: <code>000   01 198   05 199</code>
   </div>
 
 <script>
@@ -111,13 +111,17 @@ function assemble(){
     if(mem[a]){
       const L=mem[a].left?mem[a].left:{opc:0,opr:0};
       const R=mem[a].right?mem[a].right:{opc:0,opr:0};
-      out.push(a.toString().padStart(3,'0')+"   "+
-               L.opc.toString().padStart(2,'0')+" "+L.opr.toString().padStart(3,'0')+"   "+
-               R.opc.toString().padStart(2,'0')+" "+R.opr.toString().padStart(3,'0'));
+      out.push(
+        a.toString().padStart(3,'0')+"   "+
+        L.opc.toString(16).toUpperCase().padStart(2,'0')+" "+L.opr.toString().padStart(3,'0')+"   "+
+        R.opc.toString(16).toUpperCase().padStart(2,'0')+" "+R.opr.toString().padStart(3,'0')
+      );
     } else {
       const d=data.find(x=>x.addr===a);
-      out.push(a.toString().padStart(3,'0')+"   "+
-               "00 000   "+d.value.toString().padStart(2,'0')+" "+d.value.toString().padStart(3,'0'));
+      out.push(
+        a.toString().padStart(3,'0')+"   "+
+        "00 000   "+d.value.toString().padStart(2,'0')+" "+d.value.toString().padStart(3,'0')
+      );
     }
   }
 
