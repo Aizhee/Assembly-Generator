@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <h2>IAS assembler → memory map (hex opcode, decimal addr)</h2>
+  <h2>IAS assembler → memory map (binary defined, hex output)</h2>
 
   <div class="row">
     <textarea id="inputCode" placeholder="000(0:19): LOAD M(198)&#10;000(20:39): ADD M(199)"></textarea>
@@ -28,24 +28,24 @@
   <pre id="output"></pre>
   <div class="note">
     Output format: <code>ADDR   OPCODE ADDR   OPCODE ADDR</code><br>
-    Example: <code>000   01 198   05 199</code>
+    Opcodes defined in binary, displayed as 2-digit hex.
   </div>
 
 <script>
 const OPCODES = {
-  'LOAD': 1,
-  'ADD': 5,
-  'SUB': 6,
-  'STOR': 21,
-  'JUMP_L': 13,
-  'JUMP_R': 14,
-  'JUMP+_L': 15,
-  'JUMP+_R': 16,
-  'NOP': 0,
-  'HALT': 255,
-  'LDMQ_MX': 10,
-  'LDMQ': 9,
-  'MUL': 11
+  'LOAD':   0b00000001, // 01
+  'ADD':    0b00000101, // 05
+  'SUB':    0b00000110, // 06
+  'STOR':   0b00100001, // 21
+  'JUMP_L': 0b00001101, // 0D
+  'JUMP_R': 0b00001110, // 0E
+  'JUMP+_L':0b00001111, // 0F
+  'JUMP+_R':0b00010000, // 10
+  'NOP':    0b00000000, // 00
+  'HALT':   0b11111111, // FF
+  'LDMQ_MX':0b00001010, // 0A
+  'LDMQ':   0b00001001, // 09
+  'MUL':    0b00001011  // 0B
 };
 
 const ALIASES = { 'ST':'STOR', 'STORE':'STOR', 'JMP':'JUMP', 'JMP+':'JUMP+' };
@@ -86,17 +86,12 @@ function assemble(){
     const op=parseOperand(instr.slice(1).join(" "));
 
     let opc=null, opr=op.addr;
-    if(mnem==='LOAD'||mnem==='ADD'||mnem==='SUB'||mnem==='STOR'){
+    if(mnem in OPCODES){
       opc=OPCODES[mnem];
-    } else if(mnem==='NOP'){opc=0;opr=0;}
-    else if(mnem==='HALT'){opc=255;opr=0;}
-    else if(mnem==='JUMP'||mnem==='JUMP+'){
+    } else if(mnem==='JUMP'||mnem==='JUMP+'){
       if(mnem==='JUMP') opc=(op.half==='20:39')?OPCODES['JUMP_R']:OPCODES['JUMP_L'];
       else opc=(op.half==='20:39')?OPCODES['JUMP+_R']:OPCODES['JUMP+_L'];
-    } else if(mnem==='LDMQ_MX'){opc=OPCODES[mnem];}
-    else if(mnem==='LDMQ'){opc=OPCODES[mnem]; opr=0;}
-    else if(mnem==='MUL'){opc=OPCODES[mnem];}
-     else {
+    } else {
       errors.push("line "+lineNo+": unknown mnemonic "+mnem);
       continue;
     }
