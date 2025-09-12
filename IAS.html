@@ -42,7 +42,10 @@ const OPCODES = {
   'JUMP+_L': 15,
   'JUMP+_R': 16,
   'NOP': 0,
-  'HALT': 255
+  'HALT': 255,
+  'LDMQ_MX': 10,
+  'LDMQ': 9,
+  'MUL': 11
 };
 
 const ALIASES = { 'ST':'STOR', 'STORE':'STOR', 'JMP':'JUMP', 'JMP+':'JUMP+' };
@@ -90,7 +93,10 @@ function assemble(){
     else if(mnem==='JUMP'||mnem==='JUMP+'){
       if(mnem==='JUMP') opc=(op.half==='20:39')?OPCODES['JUMP_R']:OPCODES['JUMP_L'];
       else opc=(op.half==='20:39')?OPCODES['JUMP+_R']:OPCODES['JUMP+_L'];
-    } else {
+    } else if(mnem==='LDMQ_MX'){opc=OPCODES[mnem];}
+    else if(mnem==='LDMQ'){opc=OPCODES[mnem]; opr=0;}
+    else if(mnem==='MUL'){opc=OPCODES[mnem];}
+     else {
       errors.push("line "+lineNo+": unknown mnemonic "+mnem);
       continue;
     }
