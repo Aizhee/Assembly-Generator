@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>IAS Assembler → Memory Map</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f6f7f8; color: #111 }
+    textarea { width: 100%; height: 260px; font-family: monospace; font-size: 13px; }
+    pre { background: #0e0f11; color: #bfeabf; padding: 12px; overflow:auto; }
+    .row { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+    button { padding:8px 14px; font-size:14px; }
+    .note { color:#444; font-size:13px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h2>IAS assembler → memory map (opcode addr format)</h2>
+
+  <div class="row">
+    <textarea id="inputCode" placeholder="Paste IAS assembly (address halves like 000(0:19): LOAD M(198)) here"></textarea>
+  </div>
+  <div class="row">
+    <button onclick="assemble()">Convert</button>
+    <button onclick="copyOutput()">Copy output</button>
+    <button onclick="downloadOutput()">Download .map</button>
+  </div>
+
+  <h3>Output (ready to load)</h3>
+  <pre id="output"></pre>
+  <div class="note">
+    Output format is: <code>ADDR   OPCODE ADDR   OPCODE ADDR</code>.  
+    Example: <code>000   01 100   05 101</code>.
+  </div>
+
+<script>
+const OPCODES = {
+  'LOAD': 1,
+  'ADD': 5,
+  'SUB': 6,
+  'STOR': 21,
+  'JUMP_L': 13,
+  'JUMP_R': 14,
+  'JUMP+_L': 15,
+  'JUMP+_R': 16,
+  'NOP': 0,
+  'HALT': 255
+};
+
+const ALIASES = { 'ST':'STOR', 'STORE':'STOR', 'JMP':'JUMP', 'JMP+':'JUMP+' };
+
+function parseOperand(token){
+  if(!token) return {addr:0, half:null};
+  const m = token.match(/M\((\d+)(?:,(0:19|20:39))?\)/i);
+  if(!m) return {addr:0, half:null};
+  return {addr: parseInt(m[1],10), half:m[2]};
+}
+
+function assemble(){
+  const raw = document.getElementById('inputCode').value.split('\n');
+  const mem = {};
+  const data = [];
+  const errors = [];
+
+  function ensure(a){ if(!mem[a]) mem[a]={left:null,right:null}; return mem[a]; }
+
+  let lineNo=0;
+  for(const r of raw){
+    lineNo++;
+    let line=r.split(/[/#;]/)[0].trim();
+    if(!line) continue;
+
+    const dm=line.match(/^(\d+)\s*:\s*(-?\d+)$/);
+    if(dm){ data.push({addr:+dm[1], value:+dm[2]}); continue; }
+
+    const im=line.match(/^(\d+)\((0:19|20:39)\):\s*(.+)$/);
+    if(!im){ errors.push("line "+lineNo+": cannot parse "+line); continue; }
+
+    const addr=+im[1];
+    const half=im[2];
+    const instr=im[3].trim().split(/\s+/);
+    let mnem=instr[0].toUpperCase();
+    if(ALIASES[mnem]) mnem=ALIASES[mnem];
+
+    const op=parseOperand(instr.slice(1).join(" "));
+
+    let opc=null, opr=op.addr;
+    if(mnem==='LOAD'||mnem==='ADD'||mnem==='SUB'||mnem==='STOR'){
+      opc=OPCODES[mnem];
+    } else if(mnem==='NOP'){opc=0;opr=0;}
+    else if(mnem==='HALT'){opc=255;opr=0;}
+    else if(mnem==='JUMP'||mnem==='JUMP+'){
+      if(mnem==='JUMP') opc=(op.half==='20:39')?OPCODES['JUMP_R']:OPCODES['JUMP_L'];
+      else opc=(op.half==='20:39')?OPCODES['JUMP+_R']:OPCODES['JUMP+_L'];
+    } else {
+      errors.push("line "+lineNo+": unknown mnemonic "+mnem);
+      continue;
+    }
+
+    const bucket=ensure(addr);
+    if(half==='0:19') bucket.left={opc,opr}; else bucket.right={opc,opr};
+  }
+
+  const all=Array.from(new Set(Object.keys(mem).map(x=>+x).concat(data.map(d=>d.addr)))).sort((a,b)=>a-b);
+  const out=[];
+  for(const a of all){
+    if(mem[a]){
+      const L=mem[a].left?mem[a].left:{opc:0,opr:0};
+      const R=mem[a].right?mem[a].right:{opc:0,opr:0};
+      out.push(a.toString().padStart(3,'0')+"   "+
+               L.opc.toString().padStart(2,'0')+" "+L.opr.toString().padStart(3,'0')+"   "+
+               R.opc.toString().padStart(2,'0')+" "+R.opr.toString().padStart(3,'0'));
+    } else {
+      const d=data.find(x=>x.addr===a);
+      out.push(a.toString().padStart(3,'0')+"   "+
+               "00 000   "+d.value.toString().padStart(2,'0')+" "+d.value.toString().padStart(3,'0'));
+    }
+  }
+
+  document.getElementById('output').textContent=(errors.length?";; ERRORS:\n"+errors.join("\n")+"\n\n":"")+out.join("\n");
+}
+
+function copyOutput(){
+  navigator.clipboard.writeText(document.getElementById('output').textContent);
+  alert("Output copied");
+}
+function downloadOutput(){
+  const blob=new Blob([document.getElementById('output').textContent],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download="ias_memory.map";a.click();
+}
+</script>
+</body>
+</html>
